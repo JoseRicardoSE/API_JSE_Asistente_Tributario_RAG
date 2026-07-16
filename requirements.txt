@@ -1,0 +1,12 @@
+langchain
+langchain-community
+langchain-qdrant
+qdrant-client
+fastembed
+pypdf
+python-dotenv
+fastapi
+uvicorn
+streamlit
+langchain-groq
+requests
