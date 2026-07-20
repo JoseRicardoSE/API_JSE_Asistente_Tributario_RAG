@@ -10,3 +10,7 @@ uvicorn
 streamlit
 langchain-groq
 requests
+langchain-google-genai
+langchain-cohere
+langchain-huggingface
+langchain-ollama

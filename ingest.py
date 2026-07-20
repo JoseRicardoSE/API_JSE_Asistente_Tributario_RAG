@@ -1,115 +1,133 @@
 import os
+import re
 from dotenv import load_dotenv
-
-# Librerías de LangChain y herramientas de IA
-from langchain_community.document_loaders import PyPDFDirectoryLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import DirectoryLoader, TextLoader
+from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
 from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
 from langchain_qdrant import QdrantVectorStore
+from qdrant_client import QdrantClient
 
-# 1. Cargar variables de entorno (Credenciales)
-# Crea un archivo .env en la misma carpeta con QDRANT_URL y QDRANT_API_KEY
 load_dotenv()
 QDRANT_URL = os.getenv("QDRANT_URL")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 COLLECTION_NAME = "base_conocimiento_tributario"
 
-def main():
-    print("🚀 Iniciando el proceso de Ingesta Profesional RAG...")
-
-    # =========================================================================
-    # PASO 1: CARGA DE DOCUMENTOS
-    # =========================================================================
-    # Asume que tienes una carpeta llamada "documentos_legales" con tus PDFs
-    directorio_pdfs = "documentos_legales"
+def clean_and_format_text(text: str) -> str:
+    # 1. Limpieza de Ruido Institucional y Notas Marginales
+    text = re.sub(r'Biblioteca del Congreso Nacional de Chile.*?página \d+ de \d+\s*', '', text)
+    text = re.sub(r'Biblioteca del Congreso Nacional de Chile / BCN\s*', '', text)
+    text = re.sub(r'\d+\s+Biblioteca del Congreso.*?Ley Chile\s*', '', text)
+    text = re.sub(r'\d+\s+años?\s*', '', text)
+    text = re.sub(r'Decreto Ley \d+, HACIENDA \(\d+\)\s*', '', text)
+    text = re.sub(r'Ley Chile\s*', '', text)
+    text = re.sub(r'^\d+\s*$', '', text, flags=re.MULTILINE)  # orphan numbers
     
-    if not os.path.exists(directorio_pdfs):
-        os.makedirs(directorio_pdfs)
-        print(f"⚠️ Carpeta '{directorio_pdfs}' creada. Por favor, coloca tus PDFs legales ahí y vuelve a ejecutar.")
+    # Eliminar Notas Marginales de Modificaciones (ej. Ley 21210 D.O. 24.02.2020) y Bloques NOTA:
+    # IMPORTANTE: Usamos ^\s*(?:## )?NOTA\b para NO atrapar palabras como 'notas de débito'.
+    text = re.sub(r'^\s*(?:## )?NOTA:?.*?(?=\n\n|\n[A-Z]|\n#)', '', text, flags=re.MULTILINE | re.DOTALL) 
+    text = re.sub(r'Ley\s+\d+[\s\S]{1,50}?D\.O\.\s+\d{2}\.\d{2}\.\d{4}', '', text, flags=re.IGNORECASE)
+    
+    # 2. Limpieza de Tablas HTML rotas (Strip HTML tags)
+    text = re.sub(r'<[^>]+>', ' ', text)
+    
+    # 3. Estructuración Jerárquica Markdown Estricta
+    text = re.sub(r'^\s*(LIBRO\s+.*?)$', r'# \1', text, flags=re.MULTILINE | re.IGNORECASE)
+    text = re.sub(r'^\s*(DISPOSICIONES?\s+TRANSITORIAS?.*?)$', r'# \1', text, flags=re.MULTILINE | re.IGNORECASE)
+    text = re.sub(r'^\s*(T[IÍ\w]*TULO\s+.*?)$', r'## \1', text, flags=re.MULTILINE | re.IGNORECASE)
+    text = re.sub(r'^\s*(P[AÁ\w]*RRAFO\s+.*?)$', r'### \1', text, flags=re.MULTILINE | re.IGNORECASE)
+    
+    # Separar Artículos (Header 4)
+    text = re.sub(r'^\s*(ART[IÍ\w]*CULO|Art\.)\s+([A-Za-z0-9°]+(?:\s+bis|\s+ter)?)[.-]*\s*(.*)$', r'#### \1 \2\n\3', text, flags=re.MULTILINE | re.IGNORECASE)
+    
+    # 4. Granularidad en Artículos Extensos (Header 5 para Letras a), b), A.-, B.-)
+    # Detecta "a) ", "A.- " al inicio de línea
+    text = re.sub(r'^\s*([a-zA-Z])[\)\.-]+\s+(.*?)$', r'##### Letra \1)\n\2', text, flags=re.MULTILINE)
+    
+    return text
+
+def main():
+    # 1. Cargar archivos Markdown
+    directorio_md = "documentos_legales_md" 
+    if not os.path.exists(directorio_md):
+        print(f"Advertencia: La carpeta '{directorio_md}' no existe.")
         return
 
-    print(f"📄 Leyendo PDFs desde la carpeta '{directorio_pdfs}'...")
-    loader = PyPDFDirectoryLoader(directorio_pdfs)
+    # 2. Configurar los Splitters
+    # Primer Splitter: Semántico (Por títulos de Markdown)
+    headers_to_split_on = [
+        ("#", "Header 1"),
+        ("##", "Header 2"),
+        ("###", "Header 3"),
+        ("####", "Header 4"),
+        ("#####", "Header 5"),
+    ]
+    markdown_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
+    
+    # Segundo Splitter: De seguridad (Por tamaño de caracteres para artículos gigantes)
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1200, 
+        chunk_overlap=200
+    )
+
+    print(f"Cargando documentos Markdown desde {directorio_md}...")
+    loader = DirectoryLoader(directorio_md, glob="**/*.md", loader_cls=TextLoader, loader_kwargs={'encoding': 'utf-8'})
     docs = loader.load()
 
-    if not docs:
-        print("❌ No se encontraron documentos PDF. Abortando.")
-        return
-    
-    print(f"✅ Se cargaron {len(docs)} páginas en total.")
-
-    # =========================================================================
-    # PASO 2: INYECCIÓN DE METADATOS (Tu Diferenciador Competitivo)
-    # =========================================================================
-    # Aquí es donde le damos la estructura para que la IA no alucine y cite bien.
-    print("🏷️  Inyectando metadatos avanzados a cada página...")
+    all_chunks = []
     for doc in docs:
-        # Extraer el nombre del archivo original
-        source_path = doc.metadata.get("source", "documento_desconocido.pdf")
-        nombre_archivo = os.path.basename(source_path)
+        # Limpiar y estructurar el texto
+        cleaned_text = clean_and_format_text(doc.page_content)
         
-        # Página real (sumamos 1 porque la librería empieza en 0)
-        pagina_real = doc.metadata.get("page", 0) + 1
+        # Partir el doc en base a los encabezados Markdown
+        docs_raw = markdown_splitter.split_text(cleaned_text)
         
-        # Clasificador automático simple basado en el nombre del archivo
-        tipo_norma = "General"
-        if "ley" in nombre_archivo.lower():
-            tipo_norma = "Ley"
-        elif "resolucion" in nombre_archivo.lower() or "res" in nombre_archivo.lower():
-            tipo_norma = "Resolución SII"
-        elif "circular" in nombre_archivo.lower():
-            tipo_norma = "Circular SII"
+        # INYECCIÓN DE CONTEXTO (Para que la IA sepa de qué trata el artículo o la letra)
+        for sub_doc in docs_raw:
+            context_headers = []
+            for i in range(1, 6):
+                header_val = sub_doc.metadata.get(f'Header {i}')
+                if header_val:
+                    context_headers.append(header_val)
+            
+            if context_headers:
+                jerarquia = " > ".join(context_headers)
+                sub_doc.page_content = f"[Contexto Legal: {jerarquia}]\n{sub_doc.page_content}"
+                
+        # Splitter de seguridad (por tamaño)
+        final_splits = text_splitter.split_documents(docs_raw)
+        
+        # Inyectar metadatos base a cada fragmento final
+        for split in final_splits:
+            nombre_archivo = os.path.basename(doc.metadata.get("source", "desconocido"))
+            split.metadata["documento_origen"] = nombre_archivo
+            
+            # Armamos una cita hermosa usando el Título que detectó Markdown
+            titulo_seccion = split.metadata.get('Header 4', 
+                                split.metadata.get('Header 3', 
+                                    split.metadata.get('Header 2', 
+                                        split.metadata.get('Header 1', 'Seccion Legal'))))
+            
+            # Aseguramos que la cita tenga un formato limpio para el frontend
+            split.metadata["referencia_cita"] = f"{titulo_seccion} ({nombre_archivo})"
+            
+            all_chunks.append(split)
 
-        # Guardamos la metadata limpia y estructurada
-        doc.metadata = {
-            "documento_origen": nombre_archivo,
-            "pagina": pagina_real,
-            "tipo_norma": tipo_norma,
-            # Añadimos un texto de cita pre-fabricado para que la IA lo use fácilmente
-            "referencia_cita": f"[{tipo_norma}: {nombre_archivo}, Pág. {pagina_real}]"
-        }
-
-    # =========================================================================
-    # PASO 3: CHUNKING INTELIGENTE
-    # =========================================================================
-    # No cortamos palabras por la mitad. Intentamos respetar los párrafos dobles (\n\n)
-    # que usualmente separan artículos o incisos en las leyes.
-    print("✂️  Dividiendo los documentos en fragmentos (Chunks)...")
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,      # Tamaño ideal para que la IA tenga buen contexto
-        chunk_overlap=150,    # Solapamiento para no perder la idea entre cortes
-        separators=["\n\n", "\n", ".", " ", ""] 
-    )
+    print(f"Se crearon {len(all_chunks)} fragmentos estructurados y ligeros.")
     
-    chunks = text_splitter.split_documents(docs)
-    print(f"✅ Los documentos se dividieron en {len(chunks)} fragmentos útiles.")
-
-    # =========================================================================
-    # PASO 4: EMBEDDINGS VECTORIALES (El Motor Rápido)
-    # =========================================================================
-    # Usamos un modelo Multilingüe excelente para español. 
-    # Al usar FastEmbed, esto corre localmente en tu CPU usando Rust. Es GRATIS.
-    print("🧠 Inicializando motor de Embeddings Multilingüe...")
+    # Inicializar embeddings
+    print("Inicializando modelo de embeddings...")
     embeddings = FastEmbedEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 
-    # =========================================================================
-    # PASO 5: SUBIDA A QDRANT CLOUD
-    # =========================================================================
-    print(f"☁️  Subiendo {len(chunks)} fragmentos a Qdrant Cloud (Colección: {COLLECTION_NAME})...")
-    print("⏳ Esto puede tardar unos minutos dependiendo de la cantidad de PDFs...")
-    
-    # force_recreate=True borra la base de datos anterior y la crea de nuevo.
-    # Útil mientras estás desarrollando y subiendo PDFs nuevos.
+    print("Subiendo a Qdrant...")
     QdrantVectorStore.from_documents(
-        chunks,
+        all_chunks,
         embeddings,
         url=QDRANT_URL,
         api_key=QDRANT_API_KEY,
         collection_name=COLLECTION_NAME,
-        force_recreate=True 
+        force_recreate=True
     )
-
-    print("🎉 ¡Ingesta completada con éxito! Tu base de datos vectorial está lista para responder preguntas.")
+    print("Ingesta de Markdown profesional completada.")
 
 if __name__ == "__main__":
     main()

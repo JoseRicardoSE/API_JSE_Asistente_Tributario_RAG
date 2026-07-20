@@ -43,3 +43,8 @@ venv.bak/
 
 # Streamlit secrets (por si acaso los usas en el futuro)
 .streamlit/secrets.toml
+
+# Carpetas de datos locales (Leyes pesadas)
+documentos_legales/
+documentos_legales_md/
+propuesta/
