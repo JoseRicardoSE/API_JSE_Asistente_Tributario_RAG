@@ -19,7 +19,6 @@ El proyecto ya incluye pre-cargada la **"Santísima Trinidad" del Derecho Tribut
 ### 📸 Demostración Visual
 
 ![Demo de la Interfaz](https://via.placeholder.com/800x400.png?text=Reemplaza+esta+imagen+con+una+captura+de+tu+app)
-> *Nota: Reemplaza esta imagen con un pantallazo real de la aplicación en uso.*
 
 ---
 
@@ -129,9 +128,8 @@ streamlit run ui.py
 
 ## 📬 Contacto y Soporte
 
-- **Autor**: [Tu Nombre / Usuario]
-- **Email**: [Tu Correo Electrónico]
-- **LinkedIn**: [Tu Enlace a LinkedIn]
+- **Autor**: [José Salgado Escalona]
+- **LinkedIn**: [(https://www.linkedin.com/in/jos%C3%A9-ricardo-salgado-escalona/)]
 
 ---
 ⭐️ *Si este proyecto te resulta útil o interesante, no dudes en dejarle una estrella en GitHub.* ⭐️
