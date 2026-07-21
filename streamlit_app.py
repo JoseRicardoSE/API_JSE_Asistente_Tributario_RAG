@@ -126,8 +126,8 @@ MODEL_OPTIONS = {
     "Ollama - Llama 3 (8B)": {"provider": "ollama", "model_name": "llama3"},
     "Ollama - Llama 3.2 (3B)": {"provider": "ollama", "model_name": "llama3.2"},
     "Ollama - Phi 3 (Mini)": {"provider": "ollama", "model_name": "phi3"},
-    "HuggingFace - Mistral 7B": {"provider": "huggingface", "model_name": "mistralai/Mistral-7B-Instruct-v0.2"},
-    "HuggingFace - Zephyr 7B": {"provider": "huggingface", "model_name": "HuggingFaceH4/zephyr-7b-beta"}
+    "HuggingFace - Mistral 7B": {"provider": "huggingface", "model_name": "mistralai/Mistral-7B-Instruct-v0.3"},
+    "HuggingFace - Qwen 2.5 72B": {"provider": "huggingface", "model_name": "Qwen/Qwen2.5-72B-Instruct"}
 }
 
 with st.sidebar:
