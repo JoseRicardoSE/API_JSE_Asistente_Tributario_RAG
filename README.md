@@ -121,6 +121,8 @@ Se requieren dos terminales para levantar el backend y el frontend.
 [![Estado: Activo](https://img.shields.io/badge/Estado-Activo-success.svg)](https://github.com/tu-usuario/tu-repositorio)
 [![Licencia: MIT](https://img.shields.io/badge/Licencia-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
+🌐 **[¡Prueba la aplicación en vivo aquí!](https://apijseasistentetributariorag-rdhkyfjjpe9b9tppaljeyw.streamlit.app/)**
+
 ---
 
 ## 🎯 Sobre el Proyecto
@@ -134,7 +136,23 @@ El proyecto ya incluye pre-cargada la **"Santísima Trinidad" del Derecho Tribut
 
 ### 📸 Demostración Visual
 
-![Demo de la Interfaz](https://via.placeholder.com/800x400.png?text=Reemplaza+esta+imagen+con+una+captura+de+tu+app)
+<div align="center">
+  <img src="img/Captura%20de%20pantalla%202026-07-21%20162533.jpeg" alt="Captura de la Interfaz" width="800"/>
+</div>
+
+<br>
+
+**Ejemplo de Funcionamiento (Chat):**
+<div align="center">
+  <img src="img/Grabaci%C3%B3n%202026-07-21%20162716.gif" alt="Demo de uso 1" width="800"/>
+</div>
+
+<br>
+
+**Ejemplo de Funcionamiento (RAG):**
+<div align="center">
+  <img src="img/Grabaci%C3%B3n%202026-07-21%20160123.gif" alt="Demo de uso 2" width="800"/>
+</div>
 
 ---
 
