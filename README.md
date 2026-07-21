@@ -128,6 +128,23 @@ streamlit run ui.py
 
 ## 📬 Contacto y Soporte
 
+---
+
+## ☁️ Despliegue en Streamlit Cloud (Versión Unificada)
+
+Si deseas subir esta aplicación a **Streamlit Community Cloud** (donde no es posible ejecutar un servidor backend de FastAPI), se ha incluido un archivo especial llamado `streamlit_app.py`.
+
+Este archivo **combina** la lógica de Inteligencia Artificial (FastAPI/LangChain) y la Interfaz Gráfica (Streamlit) en un único script.
+
+**Pasos para desplegar en la nube:**
+1. Sube tu repositorio a GitHub incluyendo `streamlit_app.py`.
+2. Al crear la app en [share.streamlit.io](https://share.streamlit.io/), en la opción **"Main file path"**, escribe `streamlit_app.py`.
+3. En la configuración de la app en la nube (Settings > Secrets), asegúrate de pegar tus variables de entorno (como `QDRANT_URL`, `QDRANT_API_KEY` y tu API Key de Groq o Gemini).
+
+*Nota: Los archivos `app.py` y `ui.py` siguen estando disponibles si prefieres ejecutar la arquitectura separada (Backend/Frontend) en tu entorno local o en servidores como Render.*
+
+--- 
+
 - **Autor**: [José Salgado Escalona]
 - **LinkedIn**: [(https://www.linkedin.com/in/jos%C3%A9-ricardo-salgado-escalona/)]
 
