@@ -38,6 +38,8 @@ El proyecto ya incluye pre-cargada la **"Santísima Trinidad" del Derecho Tribut
 
 ---
 🌐 ¡Prueba la aplicación en vivo aquí! https://apijseasistentetributariorag-rdhkyfjjpe9b9tppaljeyw.streamlit.app/
+se desplegó con api grok y huggingface
+
 ## ✨ Características Técnicas Principales (Data Engineering & AI)
 
 * 📖 **Pipeline de Datos e Ingesta (`ingest.py`):** 
@@ -133,13 +135,6 @@ Se requieren dos terminales para levantar el backend y el frontend.
 # 🏛️ API JSE - Asistente Tributario RAG (Chile)
 
 > **Asistente de Inteligencia Artificial especializado en normativa tributaria chilena, diseñado con arquitectura RAG avanzada para Contadores Auditores y especialistas en tributación.**
-
-[![Estado: Activo](https://img.shields.io/badge/Estado-Activo-success.svg)](https://github.com/tu-usuario/tu-repositorio)
-[![Licencia: MIT](https://img.shields.io/badge/Licencia-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
-
-
----
 
 ## 🎯 Sobre el Proyecto
 
