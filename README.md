@@ -37,7 +37,7 @@ El proyecto ya incluye pre-cargada la **"Santísima Trinidad" del Derecho Tribut
 </div>
 
 ---
-
+🌐 ¡Prueba la aplicación en vivo aquí! https://apijseasistentetributariorag-rdhkyfjjpe9b9tppaljeyw.streamlit.app/
 ## ✨ Características Técnicas Principales (Data Engineering & AI)
 
 * 📖 **Pipeline de Datos e Ingesta (`ingest.py`):** 
@@ -137,7 +137,7 @@ Se requieren dos terminales para levantar el backend y el frontend.
 [![Estado: Activo](https://img.shields.io/badge/Estado-Activo-success.svg)](https://github.com/tu-usuario/tu-repositorio)
 [![Licencia: MIT](https://img.shields.io/badge/Licencia-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-🌐 **[¡Prueba la aplicación en vivo aquí!](https://apijseasistentetributariorag-rdhkyfjjpe9b9tppaljeyw.streamlit.app/)**
+
 
 ---
 
