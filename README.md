@@ -149,27 +149,6 @@ El proyecto ya incluye pre-cargada la **"Santísima Trinidad" del Derecho Tribut
 * 📘 **Ley sobre Impuesto a la Renta** (DL 824)
 * 📙 **Ley sobre Impuesto a las Ventas y Servicios - IVA** (DL 825)
 * 📕 **Código Tributario** (DL 830)
-
-### 📸 Demostración Visual
-
-<div align="center">
-  <img src="img/captura.jpeg" alt="Captura de la Interfaz" width="800"/>
-</div>
-
-<br>
-
-**Ejemplo de Funcionamiento (Chat):**
-<div align="center">
-  <img src="img/demo-chat.gif" alt="Demo de uso 1" width="800"/>
-</div>
-
-<br>
-
-**Ejemplo de Funcionamiento (RAG):**
-<div align="center">
-  <img src="img/demo-rag.gif" alt="Demo de uso 2" width="800"/>
-</div>
-
 ---
 
 ## ✨ Características Técnicas Principales (Data Engineering & AI)
