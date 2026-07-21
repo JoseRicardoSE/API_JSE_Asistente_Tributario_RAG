@@ -137,21 +137,21 @@ El proyecto ya incluye pre-cargada la **"Santísima Trinidad" del Derecho Tribut
 ### 📸 Demostración Visual
 
 <div align="center">
-  <img src="img/Captura%20de%20pantalla%202026-07-21%20162533.jpeg" alt="Captura de la Interfaz" width="800"/>
+  <img src="img/captura.jpeg" alt="Captura de la Interfaz" width="800"/>
 </div>
 
 <br>
 
 **Ejemplo de Funcionamiento (Chat):**
 <div align="center">
-  <img src="img/Grabaci%C3%B3n%202026-07-21%20162716.gif" alt="Demo de uso 1" width="800"/>
+  <img src="img/demo-chat.gif" alt="Demo de uso 1" width="800"/>
 </div>
 
 <br>
 
 **Ejemplo de Funcionamiento (RAG):**
 <div align="center">
-  <img src="img/Grabaci%C3%B3n%202026-07-21%20160123.gif" alt="Demo de uso 2" width="800"/>
+  <img src="img/demo-rag.gif" alt="Demo de uso 2" width="800"/>
 </div>
 
 ---
